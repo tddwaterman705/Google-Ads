@@ -13,9 +13,13 @@ import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.store.DataStoreFactory;
-import com.google.api.client.util.store.FileDataStoreFactory;
+import com.google.api.client.util.store.MemoryDataStoreFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
+import java.util.Collections;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -25,7 +29,6 @@ import java.util.Collections;
 @Service
 public class OAuthService {
 
-    private static final String TOKENS_DIRECTORY_PATH = "tokens";
     private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
     private static final String SCOPES = "https://www.googleapis.com/auth/adwords";
 
@@ -42,7 +45,7 @@ public class OAuthService {
                 .setAccessType("offline")
                 .build();
 
-        LocalServerReceiver receiver = new LocalServerReceiver.Builder().setPort(3000).build();
+        LocalServerReceiver receiver = new LocalServerReceiver.Builder().setPort(3001).build();
         AuthorizationCodeInstalledApp app = new AuthorizationCodeInstalledApp(flow, receiver);
         Credential credential = app.authorize("user");
 
@@ -50,8 +53,7 @@ public class OAuthService {
     }
 
     private DataStoreFactory getDataStoreFactory() throws Exception {
-        File tokensDirectory = new File(TOKENS_DIRECTORY_PATH);
-        return new FileDataStoreFactory(tokensDirectory);
+        return MemoryDataStoreFactory.getDefaultInstance();
     }
 
     public String getRefreshToken(String code) throws Exception {
@@ -72,5 +74,22 @@ public class OAuthService {
 
     private String getRedirectUri() {
         return "http://localhost:3000/";
+    }
+
+    public Credential getCredential() throws Exception {
+        HttpTransport httpTransport = GoogleNetHttpTransport.newTrustedTransport();
+        GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(JSON_FACTORY, new InputStreamReader(new FileInputStream(clientSecretPath)));
+
+        AuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
+                httpTransport, JSON_FACTORY, clientSecrets, Collections.singleton(SCOPES))
+                .setDataStoreFactory(getDataStoreFactory())
+                .setAccessType("offline")
+                .build();
+
+        return flow.loadCredential("user");
+    }
+
+    public GoogleClientSecrets getClientSecrets() throws Exception {
+        return GoogleClientSecrets.load(JSON_FACTORY, new InputStreamReader(new FileInputStream(clientSecretPath)));
     }
 }
