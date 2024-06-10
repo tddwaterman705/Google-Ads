@@ -1,6 +1,6 @@
 package com.learning.googleads.api.controllers;
 
-import com.learning.googleads.api.services.AccountInfo;
+import com.learning.googleads.api.services.AccountInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,7 +12,7 @@ import com.learning.googleads.api.dto.CustomerDTO;
 public class GoogleAdsController {
 
     @Autowired
-    private AccountInfo accountInfo;
+    private AccountInfoService accountInfo;
 
     @Value("${google.ads.login-customer-id:}")
     private String loginCustomerId;

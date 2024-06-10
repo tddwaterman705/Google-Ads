@@ -15,17 +15,17 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
 import com.learning.googleads.api.auth.OAuthService;
 import com.learning.googleads.api.dto.CustomerDTO;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
-@Component
-public class AccountInfo {
+@Service
+public class AccountInfoService {
 
-    private static final Logger logger = LoggerFactory.getLogger(AccountInfo.class);
+    private static final Logger logger = LoggerFactory.getLogger(AccountInfoService.class);
 
     @Value("${google.ads.developer-token}")
     private String developerToken;
@@ -36,7 +36,7 @@ public class AccountInfo {
     private final OAuthService oAuthService;
 
     @Autowired
-    public AccountInfo(OAuthService oAuthService) {
+    public AccountInfoService(OAuthService oAuthService) {
         this.oAuthService = oAuthService;
     }
 
