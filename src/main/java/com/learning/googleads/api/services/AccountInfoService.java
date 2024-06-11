@@ -9,10 +9,7 @@ import com.google.ads.googleads.v17.services.ListAccessibleCustomersRequest;
 import com.google.ads.googleads.v17.services.ListAccessibleCustomersResponse;
 import com.google.ads.googleads.v17.services.SearchGoogleAdsRequest;
 import com.google.ads.googleads.v17.services.GoogleAdsServiceClient.SearchPagedResponse;
-import com.google.api.client.auth.oauth2.Credential;
-import com.google.auth.oauth2.UserCredentials;
-import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
-import com.learning.googleads.api.auth.OAuthService;
+import com.learning.googleads.api.auth.GoogleAdsClientFactory;
 import com.learning.googleads.api.dto.CustomerDTO;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -33,32 +30,16 @@ public class AccountInfoService {
     @Value("${google.ads.login-customer-id:}")
     private String loginCustomerId;
 
-    private final OAuthService oAuthService;
+    private final GoogleAdsClientFactory googleAdsClientFactory;
+    private GoogleAdsServiceClient googleAdsServiceClient;
 
     @Autowired
-    public AccountInfoService(OAuthService oAuthService) {
-        this.oAuthService = oAuthService;
+    public AccountInfoService(GoogleAdsClientFactory googleAdsClientFactory) {
+        this.googleAdsClientFactory = googleAdsClientFactory;
     }
 
     private GoogleAdsClient createGoogleAdsClient() throws Exception {
-        Credential credential = oAuthService.getCredential();
-        GoogleClientSecrets clientSecrets = oAuthService.getClientSecrets();
-
-        UserCredentials userCredentials = UserCredentials.newBuilder()
-                .setClientId(clientSecrets.getDetails().getClientId())
-                .setClientSecret(clientSecrets.getDetails().getClientSecret())
-                .setRefreshToken(credential.getRefreshToken())
-                .build();
-
-        GoogleAdsClient.Builder builder = GoogleAdsClient.newBuilder()
-                .setCredentials(userCredentials)
-                .setDeveloperToken(developerToken);
-
-        if (loginCustomerId != null && !loginCustomerId.isEmpty()) {
-            builder.setLoginCustomerId(Long.parseLong(loginCustomerId));
-        }
-
-        return builder.build();
+        return googleAdsClientFactory.createGoogleAdsClient();
     }
 
     private List<String> getAccessibleCustomerIds() throws Exception {
@@ -68,7 +49,8 @@ public class AccountInfoService {
             ListAccessibleCustomersResponse response = customerServiceClient.listAccessibleCustomers(request);
             return response.getResourceNamesList();
         }
-    }
+    } 
+    
 
     public CustomerDTO getAccountInfoForFirstCustomer() throws Exception {
         List<String> customerIds = getAccessibleCustomerIds();
@@ -82,7 +64,15 @@ public class AccountInfoService {
 
     public CustomerDTO getAccountInfo(String customerId) throws Exception {
         GoogleAdsClient googleAdsClient = createGoogleAdsClient();
-        try (GoogleAdsServiceClient googleAdsServiceClient = googleAdsClient.getLatestVersion().createGoogleAdsServiceClient()) {
+       
+        try{
+            if(googleAdsServiceClient == null){
+            googleAdsServiceClient = googleAdsClient.getLatestVersion().createGoogleAdsServiceClient();
+            logger.debug("googleAdsServiceClient created");
+            logger.debug("googleAdsServiceClient stored in cache");
+            } 
+            logger.debug("googleAdsServiceClient retrieved from cache");
+
             String query = "SELECT customer.id, customer.descriptive_name, customer.currency_code, customer.time_zone, customer.test_account FROM customer";
 
             SearchGoogleAdsRequest request = SearchGoogleAdsRequest.newBuilder()
@@ -104,6 +94,9 @@ public class AccountInfoService {
                 customerDTO.setTestAccount(customer.getTestAccount());
                 return customerDTO;
             }
+        } 
+        catch (Exception e) {
+            e.printStackTrace();
         }
         return null;
     }
