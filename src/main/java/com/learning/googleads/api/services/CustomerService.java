@@ -2,6 +2,7 @@ package com.learning.googleads.api.services;
 
 import com.google.ads.googleads.lib.GoogleAdsClient;
 import com.google.ads.googleads.v17.resources.Customer;
+import com.google.ads.googleads.v17.services.CreateCustomerClientResponse;
 import com.google.ads.googleads.v17.services.CustomerServiceClient;
 import com.google.ads.googleads.v17.services.GoogleAdsRow;
 import com.google.ads.googleads.v17.services.ListAccessibleCustomersRequest;
@@ -15,12 +16,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Service
-public class AccountInfoService {
+public class CustomerService {
 
-    private static final Logger logger = LoggerFactory.getLogger(AccountInfoService.class);
+    private static final Logger logger = LoggerFactory.getLogger(CustomerService.class);
 
     @Value("${google.ads.developer-token}")
     private String developerToken;
@@ -32,7 +35,8 @@ public class AccountInfoService {
     private SearchGoogleAdsRequestFactory searchGoogleAdsRequestFactory;
 
     @Autowired
-    public AccountInfoService(GoogleAdsClientFactory googleAdsClientFactory, SearchGoogleAdsRequestFactory searchGoogleAdsRequestFactory ) {
+    public CustomerService(GoogleAdsClientFactory googleAdsClientFactory,
+            SearchGoogleAdsRequestFactory searchGoogleAdsRequestFactory) {
         this.googleAdsClientFactory = googleAdsClientFactory;
         this.searchGoogleAdsRequestFactory = searchGoogleAdsRequestFactory;
     }
@@ -43,26 +47,27 @@ public class AccountInfoService {
 
     private List<String> getAccessibleCustomerIds() throws Exception {
         GoogleAdsClient googleAdsClient = createGoogleAdsClient();
-        try (CustomerServiceClient customerServiceClient = googleAdsClient.getLatestVersion().createCustomerServiceClient()) {
+        try (CustomerServiceClient customerServiceClient = googleAdsClient.getLatestVersion()
+                .createCustomerServiceClient()) {
             ListAccessibleCustomersRequest request = ListAccessibleCustomersRequest.newBuilder().build();
             ListAccessibleCustomersResponse response = customerServiceClient.listAccessibleCustomers(request);
             return response.getResourceNamesList();
         }
-    } 
-    
-    public CustomerDTO getAccountInfoForFirstCustomer() throws Exception {
+    }
+
+    public CustomerDTO getCustomerInfoForFirstCustomer() throws Exception {
         List<String> customerIds = getAccessibleCustomerIds();
         if (!customerIds.isEmpty()) {
             // Extract the customer ID from the resource name
             String customerId = customerIds.get(0).split("/")[1];
-            return getAccountInfo(customerId);
+            return getCustomerInfo(customerId);
         }
         return null;
     }
 
-    public CustomerDTO getAccountInfo(String customerId) throws Exception {
-       
-        try{
+    public CustomerDTO getCustomerInfo(String customerId) throws Exception {
+
+        try {
             String query = "SELECT customer.id, customer.descriptive_name, customer.currency_code, customer.time_zone, customer.test_account FROM customer";
             SearchPagedResponse response = searchGoogleAdsRequestFactory.createCampaignQuery(customerId, query);
 
@@ -78,10 +83,36 @@ public class AccountInfoService {
                 customerDTO.setTestAccount(customer.getTestAccount());
                 return customerDTO;
             }
-        } 
-        catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return null;
     }
+
+    public CustomerDTO createGoogleAdsCustomer(String timeZone, String currencyCode, Long managerId) throws Exception {
+        String dateTime = ZonedDateTime.now().format(DateTimeFormatter.RFC_1123_DATE_TIME);
+        // Initializes a Customer object to be created.
+        Customer newCustomer = Customer.newBuilder()
+                .setDescriptiveName("Account created with CustomerService on '" + dateTime + "'")
+                .setCurrencyCode(currencyCode) // "USD"
+                .setTimeZone(timeZone) // "America/New_York"
+                .build();
+        
+        GoogleAdsClient googleAdsClient = createGoogleAdsClient();
+        try (CustomerServiceClient client = googleAdsClient.getLatestVersion().createCustomerServiceClient()) {
+            CreateCustomerClientResponse response = client.createCustomerClient(managerId.toString(), newCustomer);
+            logger.debug(
+                    "Created a customer with resource name " + response.getResourceName() + " under the manager account with"
+                            + " customer ID " +
+                    response.getResourceName() + " " + managerId);
+      
+        CustomerDTO customer = new CustomerDTO();
+        customer.setCustomerId(response.getResourceName().split("/")[1]);
+        customer.setCurrencyCode(newCustomer.getCurrencyCode());
+        customer.setDescriptiveName(newCustomer.getDescriptiveName());
+        customer.setTimeZone(newCustomer.getTimeZone());
+        customer.setResourceName(response.getResourceName());
+        return customer;
+    }
+}
 }
