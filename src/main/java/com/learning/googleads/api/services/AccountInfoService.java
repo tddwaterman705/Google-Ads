@@ -4,10 +4,8 @@ import com.google.ads.googleads.lib.GoogleAdsClient;
 import com.google.ads.googleads.v17.resources.Customer;
 import com.google.ads.googleads.v17.services.CustomerServiceClient;
 import com.google.ads.googleads.v17.services.GoogleAdsRow;
-import com.google.ads.googleads.v17.services.GoogleAdsServiceClient;
 import com.google.ads.googleads.v17.services.ListAccessibleCustomersRequest;
 import com.google.ads.googleads.v17.services.ListAccessibleCustomersResponse;
-import com.google.ads.googleads.v17.services.SearchGoogleAdsRequest;
 import com.google.ads.googleads.v17.services.GoogleAdsServiceClient.SearchPagedResponse;
 import com.learning.googleads.api.auth.GoogleAdsClientFactory;
 import com.learning.googleads.api.dto.CustomerDTO;
@@ -31,11 +29,12 @@ public class AccountInfoService {
     private String loginCustomerId;
 
     private final GoogleAdsClientFactory googleAdsClientFactory;
-    private GoogleAdsServiceClient googleAdsServiceClient;
+    private SearchGoogleAdsRequestFactory searchGoogleAdsRequestFactory;
 
     @Autowired
-    public AccountInfoService(GoogleAdsClientFactory googleAdsClientFactory) {
+    public AccountInfoService(GoogleAdsClientFactory googleAdsClientFactory, SearchGoogleAdsRequestFactory searchGoogleAdsRequestFactory ) {
         this.googleAdsClientFactory = googleAdsClientFactory;
+        this.searchGoogleAdsRequestFactory = searchGoogleAdsRequestFactory;
     }
 
     private GoogleAdsClient createGoogleAdsClient() throws Exception {
@@ -51,7 +50,6 @@ public class AccountInfoService {
         }
     } 
     
-
     public CustomerDTO getAccountInfoForFirstCustomer() throws Exception {
         List<String> customerIds = getAccessibleCustomerIds();
         if (!customerIds.isEmpty()) {
@@ -63,24 +61,10 @@ public class AccountInfoService {
     }
 
     public CustomerDTO getAccountInfo(String customerId) throws Exception {
-        GoogleAdsClient googleAdsClient = createGoogleAdsClient();
        
         try{
-            if(googleAdsServiceClient == null){
-            googleAdsServiceClient = googleAdsClient.getLatestVersion().createGoogleAdsServiceClient();
-            logger.debug("googleAdsServiceClient created");
-            logger.debug("googleAdsServiceClient stored in cache");
-            } 
-            logger.debug("googleAdsServiceClient retrieved from cache");
-
             String query = "SELECT customer.id, customer.descriptive_name, customer.currency_code, customer.time_zone, customer.test_account FROM customer";
-
-            SearchGoogleAdsRequest request = SearchGoogleAdsRequest.newBuilder()
-                    .setCustomerId(customerId)
-                    .setQuery(query)
-                    .build();
-
-            SearchPagedResponse response = googleAdsServiceClient.search(request);
+            SearchPagedResponse response = searchGoogleAdsRequestFactory.createCampaignQuery(customerId, query);
 
             for (GoogleAdsRow googleAdsRow : response.iterateAll()) {
                 Customer customer = googleAdsRow.getCustomer();

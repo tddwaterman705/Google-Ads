@@ -18,8 +18,8 @@ public class GoogleAdsController {
     private String loginCustomerId;
 
     @GetMapping("/accountInfo")
-    //Temporarily hardcoding the customer id for testing purposes
-    public CustomerDTO getAccountInfo(/*@RequestParam String customerId*/) {
+    // Temporarily hardcoding the customer id for testing purposes
+    public CustomerDTO getAccountInfo(/* @RequestParam String customerId */) {
         try {
             return accountInfo.getAccountInfo(loginCustomerId);
         } catch (Exception e) {
@@ -30,11 +30,11 @@ public class GoogleAdsController {
 
     // @GetMapping("/accountInfo/first")
     // public CustomerDTO getAccountInfoForFirstCustomer() {
-    //     try {
-    //         return accountInfo.getAccountInfoForFirstCustomer();
-    //     } catch (Exception e) {
-    //         e.printStackTrace();
-    //         return null;
-    //     }
+    // try {
+    // return accountInfo.getAccountInfoForFirstCustomer();
+    // } catch (Exception e) {
+    // e.printStackTrace();
+    // return null;
+    // }
     // }
 }

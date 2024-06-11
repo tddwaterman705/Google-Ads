@@ -11,7 +11,7 @@ import com.google.auth.oauth2.UserCredentials;
 
 @Component
 public class GoogleAdsClientFactory {
-     @Value("${google.ads.developer-token}")
+    @Value("${google.ads.developer-token}")
     private String developerToken;
 
     @Value("${google.ads.login-customer-id:}")
@@ -26,27 +26,27 @@ public class GoogleAdsClientFactory {
     }
 
     public GoogleAdsClient createGoogleAdsClient() throws Exception {
-        if(cachedClient == null){
-        Credential credential = oAuthService.getCredential();
-        GoogleClientSecrets clientSecrets = oAuthService.getClientSecrets();
+        if (cachedClient == null) {
+            Credential credential = oAuthService.getCredential();
+            GoogleClientSecrets clientSecrets = oAuthService.getClientSecrets();
 
-        UserCredentials userCredentials = UserCredentials.newBuilder()
-                .setClientId(clientSecrets.getDetails().getClientId())
-                .setClientSecret(clientSecrets.getDetails().getClientSecret())
-                .setRefreshToken(credential.getRefreshToken())
-                .build();
+            UserCredentials userCredentials = UserCredentials.newBuilder()
+                    .setClientId(clientSecrets.getDetails().getClientId())
+                    .setClientSecret(clientSecrets.getDetails().getClientSecret())
+                    .setRefreshToken(credential.getRefreshToken())
+                    .build();
 
-        GoogleAdsClient.Builder builder = GoogleAdsClient.newBuilder()
-                .setCredentials(userCredentials)
-                .setDeveloperToken(developerToken);
+            GoogleAdsClient.Builder builder = GoogleAdsClient.newBuilder()
+                    .setCredentials(userCredentials)
+                    .setDeveloperToken(developerToken);
 
-        if (loginCustomerId != null && !loginCustomerId.isEmpty()) {
-            builder.setLoginCustomerId(Long.parseLong(loginCustomerId));
+            if (loginCustomerId != null && !loginCustomerId.isEmpty()) {
+                builder.setLoginCustomerId(Long.parseLong(loginCustomerId));
+            }
+
+            cachedClient = builder.build();
+            return cachedClient;
         }
-
-        cachedClient = builder.build();
         return cachedClient;
     }
-    return cachedClient;
-}
 }

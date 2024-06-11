@@ -9,5 +9,4 @@ public class CampaignService {
 
     private static final Logger logger = LoggerFactory.getLogger(CampaignService.class);
 
-    
 }

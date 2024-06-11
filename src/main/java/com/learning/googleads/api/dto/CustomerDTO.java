@@ -10,11 +10,11 @@ public class CustomerDTO {
     private Boolean testAccount;
 
     // Getters and setters
-    public String getCustomerId(){
+    public String getCustomerId() {
         return customerId;
     }
 
-    public void setCustomerId(String customerId){
+    public void setCustomerId(String customerId) {
         this.customerId = customerId;
     }
 
@@ -50,7 +50,7 @@ public class CustomerDTO {
         this.timeZone = timeZone;
     }
 
-        public Boolean getTestAccount() {
+    public Boolean getTestAccount() {
         return testAccount;
     }
 
