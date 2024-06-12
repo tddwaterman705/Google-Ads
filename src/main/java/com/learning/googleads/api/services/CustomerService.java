@@ -9,7 +9,9 @@ import com.google.ads.googleads.v17.services.ListAccessibleCustomersRequest;
 import com.google.ads.googleads.v17.services.ListAccessibleCustomersResponse;
 import com.google.ads.googleads.v17.services.GoogleAdsServiceClient.SearchPagedResponse;
 import com.learning.googleads.api.auth.GoogleAdsClientFactory;
-import com.learning.googleads.api.dto.CustomerDTO;
+import com.learning.googleads.api.web.CustomerDTO;
+import com.learning.googleads.api.web.SearchGoogleAdsRequestFactory;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -89,30 +91,30 @@ public class CustomerService {
         return null;
     }
 
-    public CustomerDTO createGoogleAdsCustomer(String timeZone, String currencyCode, Long managerId) throws Exception {
+    public CustomerDTO createGoogleAdsCustomer(String timeZone, String currencyCode, Long managerId, String accountName)
+            throws Exception {
         String dateTime = ZonedDateTime.now().format(DateTimeFormatter.RFC_1123_DATE_TIME);
         // Initializes a Customer object to be created.
         Customer newCustomer = Customer.newBuilder()
-                .setDescriptiveName("Account created with CustomerService on '" + dateTime + "'")
-                .setCurrencyCode(currencyCode) // "USD"
-                .setTimeZone(timeZone) // "America/New_York"
+                .setDescriptiveName(accountName + ". Account created on '" + dateTime + "'")
+                .setCurrencyCode(currencyCode)
+                .setTimeZone(timeZone)
                 .build();
-        
+
         GoogleAdsClient googleAdsClient = createGoogleAdsClient();
         try (CustomerServiceClient client = googleAdsClient.getLatestVersion().createCustomerServiceClient()) {
             CreateCustomerClientResponse response = client.createCustomerClient(managerId.toString(), newCustomer);
             logger.debug(
-                    "Created a customer with resource name " + response.getResourceName() + " under the manager account with"
-                            + " customer ID " +
-                    response.getResourceName() + " " + managerId);
-      
-        CustomerDTO customer = new CustomerDTO();
-        customer.setCustomerId(response.getResourceName().split("/")[1]);
-        customer.setCurrencyCode(newCustomer.getCurrencyCode());
-        customer.setDescriptiveName(newCustomer.getDescriptiveName());
-        customer.setTimeZone(newCustomer.getTimeZone());
-        customer.setResourceName(response.getResourceName());
-        return customer;
+                    "Created a customer with resource name " + response.getResourceName()
+                            + " under the manager account " + managerId);
+
+            CustomerDTO customer = new CustomerDTO();
+            customer.setCustomerId(response.getResourceName().split("/")[1]);
+            customer.setCurrencyCode(newCustomer.getCurrencyCode());
+            customer.setDescriptiveName(newCustomer.getDescriptiveName());
+            customer.setTimeZone(newCustomer.getTimeZone());
+            customer.setResourceName(response.getResourceName());
+            return customer;
+        }
     }
-}
 }

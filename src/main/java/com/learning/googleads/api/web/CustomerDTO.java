@@ -1,4 +1,4 @@
-package com.learning.googleads.api.dto;
+package com.learning.googleads.api.web;
 
 //Data transfer object to help with serialization issues in Google Ads API responses
 public class CustomerDTO {

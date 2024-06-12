@@ -1,4 +1,4 @@
-package com.learning.googleads.api.controllers;
+package com.learning.googleads.api.web;
 
 import org.springframework.web.bind.annotation.RestController;
 
