@@ -11,8 +11,8 @@ public class OAuthController {
     @Autowired
     private OAuthService oAuthService;
 
-    @GetMapping("/connect")
-    public String connect() throws Exception {
+    @GetMapping("/auth")
+    public String auth() throws Exception {
         return oAuthService.getAuthorizationUrl();
     }
 
