@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.learning.googleads.api.services.CampaignService;
@@ -15,15 +16,41 @@ public class CampaignController {
     @Autowired
     private CampaignService campaignService;
 
-    @GetMapping("/campaign/info")
+    @GetMapping("/campaigns")
 
-    public ResponseEntity<List<Long>> getAllCmpaignIds(@RequestParam String loginCustomerId) {
+    public ResponseEntity<List<Long>> getAllCmpaignIds(@RequestParam String customerId) {
         try {
-            return campaignService.getAllCampaignIds(loginCustomerId);
+            return campaignService.getAllCampaignIds(customerId);
         } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
+    }
+
+    @GetMapping("campaigns/{campaignId}")
+
+    public ResponseEntity<?> getCampaignDetails(@RequestParam String customerId, @PathVariable Long campaignId) {
+        // TODO: fill out business logic for getting campaign details
+        return null;
+    }
+
+    @GetMapping("campaigns/{search}")
+
+    public ResponseEntity<?> queryCampaigns(@RequestParam String customerId, @PathVariable Long campaignId,
+            @RequestParam(value = "status", required = false) String status,
+            @RequestParam(value = "name", required = false) String name,
+            @RequestParam(value = "type", required = false) String type,
+            @RequestParam(value = "sort", defaultValue = "name") String sortBy) {
+
+        // TODO: fill out business logic for searching by campaign
+        return null;
+    }
+
+    @GetMapping("campaigns/metrics")
+
+    public ResponseEntity<?> getMetrics(@RequestParam String customerId, @RequestParam(value = "campaignId", required = false) Long campaignId){
+        //TODO: fill out business logic
+        return null;
     }
 
 }
