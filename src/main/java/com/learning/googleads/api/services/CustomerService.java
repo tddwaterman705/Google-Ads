@@ -34,7 +34,7 @@ public class CustomerService {
     private String loginCustomerId;
 
     private final GoogleAdsClientFactory googleAdsClientFactory;
-    private SearchGoogleAdsRequestFactory searchGoogleAdsRequestFactory;
+    private final SearchGoogleAdsRequestFactory searchGoogleAdsRequestFactory;
 
     @Autowired
     public CustomerService(GoogleAdsClientFactory googleAdsClientFactory,
