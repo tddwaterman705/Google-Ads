@@ -29,12 +29,16 @@ public class CampaignController {
 
     @GetMapping("campaigns/{campaignId}")
 
-    public ResponseEntity<?> getCampaignDetails(@RequestParam String customerId, @PathVariable Long campaignId) {
-        // TODO: fill out business logic for getting campaign details
-        return null;
+    public CampaignDetailsDTO getCampaignDetails(@RequestParam String customerId, @PathVariable String campaignId) {
+        try {
+            return campaignService.getCampaignDetails(customerId, campaignId);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
-    @GetMapping("campaigns/{search}")
+    @GetMapping("campaigns/search/{search}")
 
     public ResponseEntity<?> queryCampaigns(@RequestParam String customerId, @PathVariable Long campaignId,
             @RequestParam(value = "status", required = false) String status,

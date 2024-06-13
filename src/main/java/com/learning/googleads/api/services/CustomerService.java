@@ -70,7 +70,8 @@ public class CustomerService {
     public CustomerDTO getCustomerInfo(String customerId) throws Exception {
 
         try {
-            String query = "SELECT customer.id, customer.descriptive_name, customer.currency_code, customer.time_zone, customer.test_account FROM customer";
+            String query = "SELECT customer.id, customer.descriptive_name, customer.currency_code, " +
+            "customer.time_zone, customer.test_account FROM customer";
             SearchPagedResponse response = searchGoogleAdsRequestFactory.createCampaignQuery(customerId, query);
 
             for (GoogleAdsRow googleAdsRow : response.iterateAll()) {
