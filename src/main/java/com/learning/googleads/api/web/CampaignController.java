@@ -52,8 +52,13 @@ public class CampaignController {
 
     @GetMapping("campaigns/metrics")
 
-    public ResponseEntity<?> getMetrics(@RequestParam String customerId, @RequestParam(value = "campaignId", required = false) Long campaignId){
-        //TODO: fill out business logic
+    public CampaignMetricsDTO getMetrics(@RequestParam String customerId, @RequestParam String campaignId){
+        try {
+            return campaignService.getCampaignMetrics(customerId, campaignId);
+
+        } catch (Exception e) {
+            e.printStackTrace();;
+        }
         return null;
     }
 

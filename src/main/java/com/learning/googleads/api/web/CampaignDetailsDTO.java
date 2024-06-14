@@ -120,4 +120,22 @@ public class CampaignDetailsDTO {
     public void setBiddingStrategyType(BiddingStrategyType biddingStrategyType2) {
         this.biddingStrategyType = biddingStrategyType2;
     }
+
+    @Override
+    public String toString() {
+        return "CampaignDetailsDTO: " +
+                "\n\tcampaignId=" + campaignId +
+                "\n\tcustomerId=" + customerId +
+                "\n\tkeywordMatchType='" + keywordMatchType + '\'' +
+                "\n\tcampaignName='" + campaignName + '\'' +
+                "\n\toptimizationScore=" + optimizationScore +
+                "\n\tprimaryStatus='" + primaryStatus + '\'' +
+                "\n\tprimaryStatusReasons=" + (primaryStatusReasons != null ? primaryStatusReasons : "[]") +                                                                                    
+                "\n\tservingStatus='" + servingStatus + '\'' +
+                "\n\tstartDate=" + startDate +
+                "\n\tcampaignStatus='" + campaignStatus + '\'' +
+                "\n\ttrackingUrl='" + trackingUrl + '\'' +
+                "\n\tbiddingStrategyType='" + biddingStrategyType;
+    }
+
 }

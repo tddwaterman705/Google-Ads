@@ -1,6 +1,5 @@
 package com.learning.googleads.api.web;
 
-//Data transfer object to help with serialization issues in Google Ads API responses
 public class CustomerDTO {
     private String customerId;
     private String resourceName;
@@ -56,5 +55,16 @@ public class CustomerDTO {
 
     public void setTestAccount(Boolean testAccount) {
         this.testAccount = testAccount;
+    }
+
+    @Override
+    public String toString() {
+        return "CustomerDTO:" +
+                "\n\tcustomerId='" + customerId + '\'' +
+                "\n\tresourceName='" + resourceName + '\'' +
+                "\n\tdescriptiveName='" + descriptiveName + '\'' +
+                "\n\tcurrencyCode='" + currencyCode + '\'' +
+                "\n\ttimeZone='" + timeZone + '\'' +
+                "\n\ttestAccount=" + testAccount;
     }
 }
