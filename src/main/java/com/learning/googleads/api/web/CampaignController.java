@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
 import com.learning.googleads.api.services.CampaignService;
 
 @RestController
@@ -52,13 +53,26 @@ public class CampaignController {
 
     @GetMapping("campaigns/metrics")
 
-    public CampaignMetricsDTO getMetrics(@RequestParam String customerId, @RequestParam String campaignId){
+    public CampaignMetricsDTO getMetrics(@RequestParam String customerId, @RequestParam String campaignId) {
         try {
             return campaignService.getCampaignMetrics(customerId, campaignId);
 
         } catch (Exception e) {
-            e.printStackTrace();;
+            e.printStackTrace();
+            ;
         }
+        return null;
+    }
+
+    @GetMapping("campaigns/create")
+
+    public String createPmaxCampaign(@RequestParam String customerId) {
+        try {
+            return campaignService.createPmaxCampaign(customerId);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         return null;
     }
 
